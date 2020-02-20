@@ -63,7 +63,7 @@ def main_handler(path):
 
     # non supported requests, need to create new mock list
     milliseconds = int(round(time.time() * 1000))
-    filename = "{}/{}_{}_{}.yaml".format(settings.mock_list_folder, request.method, path, str(milliseconds))
+    filename = "{}/{}_{}_{}.yaml".format(settings.mock_list_folder, request.method, path.replace('/', '_'), str(milliseconds))
     text_file = open(filename, "w")
     req['response'] = "CHANGEME in file {}".format(filename)
     n = text_file.write(yaml.dump(req))
