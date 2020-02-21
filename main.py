@@ -1,13 +1,11 @@
 import json
+import os
 import time
 
+import requests
+import yaml
 from flask import Flask, Response
 from flask import request
-import yaml
-import os
-
-import requests
-
 from gevent.pywsgi import WSGIServer
 
 app = Flask(__name__)
@@ -55,6 +53,7 @@ def get_response(filepath, current_request, origin_request):
 
         return response
 
+
 def read_mock_list():
     path = mock_list_folder
 
@@ -89,16 +88,20 @@ def handler(path):
                             status=200,
                             mimetype="application/json")
 
-    # non supported requests, need to create new mock list
-    milliseconds = int(round(time.time() * 1000))
-    filename = "{}/{}_{}_{}.yaml".format(mock_list_folder, request.method, path.replace('/', '_'),
-                                         str(milliseconds))
-
+    filename = get_filename(path)
     response_text = "CHANGEME in file {}".format(filename)
 
+    # create new mock list
     write_yaml_file(filename, req, response_text)
 
     return response_text
+
+
+def get_filename(path):
+    milliseconds = int(round(time.time() * 1000))
+    filename = "{}/{}_{}_{}.yaml".format(mock_list_folder, request.method, path.replace('/', '_'),
+                                         str(milliseconds))
+    return filename
 
 
 def write_yaml_file(filename, req, response_text):
@@ -109,6 +112,5 @@ def write_yaml_file(filename, req, response_text):
 
 
 if __name__ == '__main__':
-    # app.run(port=7000)
     http_server = WSGIServer(('', 7000), app)
     http_server.serve_forever()
