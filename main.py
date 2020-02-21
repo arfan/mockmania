@@ -71,8 +71,13 @@ def read_mock_list():
 def handler(path):
     req = {
         'method': request.method,
-        'path': path,
     }
+
+    qs = request.query_string.decode()
+    if qs:
+        req['path'] = "{}?{}".format(path, request.query_string.decode())
+    else:
+        req['path'] = path
 
     body_content = json.dumps(request.json)
 
