@@ -6,10 +6,9 @@ from flask import request
 import yaml
 import os
 
-import settings
-
 app = Flask(__name__)
 HTTP_METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH']
+mock_list_folder = 'mock_list'
 
 
 def get_response(filepath, current_request):
@@ -32,7 +31,7 @@ def get_response(filepath, current_request):
 
 
 def read_mock_list():
-    path = settings.mock_list_folder
+    path = mock_list_folder
 
     files = []
     # r=root, d=directories, f = files
@@ -45,7 +44,7 @@ def read_mock_list():
 
 @app.route('/', defaults={'path': ''}, methods=HTTP_METHODS)
 @app.route('/<path:path>', methods=HTTP_METHODS)
-def main_handler(path):
+def handler(path):
     req = {
         'method': request.method,
         'path': path,
@@ -58,18 +57,22 @@ def main_handler(path):
         resp = get_response(ml, req)
         if resp:
             return Response(response=resp,
-                    status=200,
-                    mimetype="application/json")
+                            status=200,
+                            mimetype="application/json")
 
     # non supported requests, need to create new mock list
     milliseconds = int(round(time.time() * 1000))
-    filename = "{}/{}_{}_{}.yaml".format(settings.mock_list_folder, request.method, path.replace('/', '_'), str(milliseconds))
+    filename = "{}/{}_{}_{}.yaml".format(mock_list_folder, request.method, path.replace('/', '_'),
+                                         str(milliseconds))
+
+    response_text = "CHANGEME in file {}".format(filename)
+
     text_file = open(filename, "w")
-    req['response'] = "CHANGEME in file {}".format(filename)
-    n = text_file.write(yaml.dump(req))
+    req['response'] = response_text
+    text_file.write(yaml.dump(req))
     text_file.close()
 
-    return "CHANGEME in file {}".format(filename)
+    return response_text
 
 
 if __name__ == '__main__':
