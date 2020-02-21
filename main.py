@@ -8,6 +8,8 @@ import os
 
 import requests
 
+from gevent.pywsgi import WSGIServer
+
 app = Flask(__name__)
 HTTP_METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH']
 mock_list_folder = 'mock_list'
@@ -107,4 +109,6 @@ def write_yaml_file(filename, req, response_text):
 
 
 if __name__ == '__main__':
-    app.run(port=7000)
+    # app.run(port=7000)
+    http_server = WSGIServer(('', 7000), app)
+    http_server.serve_forever()
