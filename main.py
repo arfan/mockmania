@@ -10,7 +10,15 @@ from gevent.pywsgi import WSGIServer
 
 app = Flask(__name__)
 HTTP_METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH']
-mock_list_folder = 'mock_list_scenario'
+
+mockmania_endpoint = 'mockmania'
+mock_list_folder_file = 'mock_list_folder'
+
+
+def set_mock_list_folder(mock_list_folder):
+    text_file = open(mock_list_folder_file, "w")
+    n = text_file.write(mock_list_folder)
+    text_file.close()
 
 
 def get_response(filepath, current_request, origin_request):
@@ -54,7 +62,13 @@ def get_response(filepath, current_request, origin_request):
         return response
 
 
-def read_mock_list():
+def get_mock_list_folder():
+    with open(mock_list_folder_file, 'r') as file:
+        mock_list_folder = file.read().replace('\n', '')
+        return mock_list_folder
+
+
+def read_mock_list(mock_list_folder):
     path = mock_list_folder
 
     files = []
@@ -85,7 +99,14 @@ def handler(path):
         if body_content != 'null':
             req['body'] = body_content
 
-    mock_list = read_mock_list()
+        if req['method'] == 'PUT' and req['path'] == mockmania_endpoint:
+            set_mock_list_folder(request.data.decode())
+            return Response(response={"msg":"ok"},
+                            status=200,
+                            mimetype="application/json")
+
+    mock_list_folder = get_mock_list_folder()
+    mock_list = read_mock_list(mock_list_folder)
 
     for ml in mock_list:
         resp = get_response(ml, req, request)
@@ -94,7 +115,7 @@ def handler(path):
                             status=200,
                             mimetype="application/json")
 
-    filename = get_filename(path)
+    filename = get_filename(path, mock_list_folder)
     response_text = "CHANGEME in file {}".format(filename)
 
     # create new mock list
@@ -103,7 +124,7 @@ def handler(path):
     return response_text
 
 
-def get_filename(path):
+def get_filename(path, mock_list_folder):
     milliseconds = int(round(time.time() * 1000))
     filename = "{}/{}_{}_{}.yaml".format(mock_list_folder, request.method, path.replace('/', '_'),
                                          str(milliseconds))
@@ -118,5 +139,7 @@ def write_yaml_file(filename, req, response_text):
 
 
 if __name__ == '__main__':
-    http_server = WSGIServer(('', 7000), app)
-    http_server.serve_forever()
+    # http_server = WSGIServer(('', 7000), app)
+    # http_server.serve_forever()
+
+    app.run(port=7000)
