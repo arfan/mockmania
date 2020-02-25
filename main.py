@@ -10,7 +10,7 @@ from gevent.pywsgi import WSGIServer
 
 app = Flask(__name__)
 HTTP_METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH']
-mock_list_folder = 'mock_list'
+mock_list_folder = 'mock_list_scenario'
 
 
 def get_response(filepath, current_request, origin_request):
@@ -79,10 +79,11 @@ def handler(path):
     else:
         req['path'] = path
 
-    body_content = json.dumps(request.json)
+    if request.method != 'GET':
+        body_content = json.dumps(request.json)
 
-    if body_content != 'null':
-        req['body'] = body_content
+        if body_content != 'null':
+            req['body'] = body_content
 
     mock_list = read_mock_list()
 
