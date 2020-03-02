@@ -11,20 +11,22 @@ from gevent.pywsgi import WSGIServer
 app = Flask(__name__)
 HTTP_METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH']
 
-mockmania_endpoint = 'mockmania'
-mockmania_output = 'mockmania_output'
-mock_list_folder_file = 'mock_list_folder'
+endpoint_set_mocks_folder = 'mocks_folder'
+endpoint_set_mock_output = 'mock_output'
+
+mock_output_file_name = 'mock_output'
+mocks_folder_file_name = 'mocks_folder'
 
 
-def set_mock_list_folder(mock_list_folder):
-    text_file = open(mock_list_folder_file, "w")
-    n = text_file.write(mock_list_folder)
+def set_mocks_folder(mock_list_folder):
+    text_file = open(mocks_folder_file_name, "w")
+    text_file.write(mock_list_folder)
     text_file.close()
 
 
-def set_mock_mania_output(mock_output):
-    text_file = open(mockmania_output, "w")
-    n = text_file.write(mock_output)
+def set_mock_output(mock_output):
+    text_file = open(mock_output_file_name, "w")
+    text_file.write(mock_output)
     text_file.close()
 
 
@@ -36,19 +38,13 @@ def get_response(filepath, current_request, origin_request):
             if not m.get('method') == current_request.get('method'):
                 return None
 
-        if m.get('path'):
+        if m.get('path') is not None:
             if not m.get('path') == current_request.get('path'):
                 return None
 
         if m.get('body'):
             if not m.get('body') == current_request.get('body'):
                 return None
-
-        # check default output
-        if os.path.isfile(mockmania_output):
-            content = open(mockmania_output, 'r').read()
-            os.remove(mockmania_output)
-            return content
 
         response = m.get('response')
 
@@ -63,20 +59,20 @@ def get_response(filepath, current_request, origin_request):
                 cookies=origin_request.cookies,
                 allow_redirects=False)
 
-            excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+            # excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
             # headers = [(name, value) for (name, value) in resp.raw.headers.items()
             #            if name.lower() not in excluded_headers]
 
             current_request['reference'] = reference
-            write_yaml_file(filepath, current_request, resp.content.decode())
+            write_mock_yaml_file(filepath, current_request, resp.content.decode())
 
             return resp.content
 
         return response
 
 
-def get_mock_list_folder():
-    with open(mock_list_folder_file, 'r') as file:
+def get_mocks_folder():
+    with open(mocks_folder_file_name, 'r') as file:
         mock_list_folder = file.read().replace('\n', '')
         return mock_list_folder
 
@@ -96,6 +92,12 @@ def read_mock_list(mock_list_folder):
 @app.route('/', defaults={'path': ''}, methods=HTTP_METHODS)
 @app.route('/<path:path>', methods=HTTP_METHODS)
 def handler(path):
+    # check default output
+    if os.path.isfile(mock_output_file_name):
+        content = open(mock_output_file_name, 'r').read()
+        os.remove(mock_output_file_name)
+        return content
+
     req = {
         'method': request.method,
     }
@@ -112,20 +114,20 @@ def handler(path):
         if body_content != 'null':
             req['body'] = body_content
 
-        if req['method'] == 'PUT' and req['path'] == mockmania_endpoint:
-            set_mock_list_folder(request.data.decode())
+        if req['method'] == 'PUT' and req['path'] == endpoint_set_mocks_folder:
+            set_mocks_folder(request.data.decode())
             return Response(response={"msg":"ok"},
                             status=200,
                             mimetype="application/json")
 
-        if req['method'] == 'PUT' and req['path'] == mockmania_output:
-            set_mock_mania_output(request.data.decode())
+        if req['method'] == 'PUT' and req['path'] == endpoint_set_mock_output:
+            set_mock_output(request.data.decode())
 
             return Response(response={"msg":"ok"},
                             status=200,
                             mimetype="application/json")
 
-    mock_list_folder = get_mock_list_folder()
+    mock_list_folder = get_mocks_folder()
     mock_list = read_mock_list(mock_list_folder)
 
     for ml in mock_list:
@@ -137,23 +139,23 @@ def handler(path):
                             status=200,
                             mimetype="application/json")
 
-    filename = get_filename(path, mock_list_folder)
+    filename = get_mock_filename(path, mock_list_folder)
     response_text = "CHANGEME in file {}".format(filename)
 
     # create new mock list
-    write_yaml_file(filename, req, response_text)
+    write_mock_yaml_file(filename, req, response_text)
 
     return response_text
 
 
-def get_filename(path, mock_list_folder):
+def get_mock_filename(path, mock_list_folder):
     milliseconds = int(round(time.time() * 1000))
     filename = "{}/{}_{}_{}.yaml".format(mock_list_folder, request.method, path.replace('/', '_'),
                                          str(milliseconds))
     return filename
 
 
-def write_yaml_file(filename, req, response_text):
+def write_mock_yaml_file(filename, req, response_text):
     text_file = open(filename, "w")
     req['response'] = response_text
     text_file.write(yaml.dump(req))
@@ -161,6 +163,7 @@ def write_yaml_file(filename, req, response_text):
 
 
 if __name__ == '__main__':
-    print("Server start")
-    http_server = WSGIServer(('', 7000), app)
-    http_server.serve_forever()
+    # print("Server start")
+    # http_server = WSGIServer(('', 7000), app)
+    # http_server.serve_forever()
+    app.run(port=7000)
