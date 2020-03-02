@@ -6,7 +6,6 @@ import requests
 import yaml
 from flask import Flask, Response, abort
 from flask import request
-from gevent.pywsgi import WSGIServer
 
 app = Flask(__name__)
 HTTP_METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH']
