@@ -12,12 +12,19 @@ app = Flask(__name__)
 HTTP_METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH']
 
 mockmania_endpoint = 'mockmania'
+mockmania_output = 'mockmania_output'
 mock_list_folder_file = 'mock_list_folder'
 
 
 def set_mock_list_folder(mock_list_folder):
     text_file = open(mock_list_folder_file, "w")
     n = text_file.write(mock_list_folder)
+    text_file.close()
+
+
+def set_mock_mania_output(mock_output):
+    text_file = open(mockmania_output, "w")
+    n = text_file.write(mock_output)
     text_file.close()
 
 
@@ -37,6 +44,12 @@ def get_response(filepath, current_request, origin_request):
             if not m.get('body') == current_request.get('body'):
                 return None
 
+        # check default output
+        if os.path.isfile(mockmania_output):
+            content = open(mockmania_output, 'r').read()
+            os.remove(mockmania_output)
+            return content
+
         response = m.get('response')
 
         if response is None:
@@ -51,8 +64,8 @@ def get_response(filepath, current_request, origin_request):
                 allow_redirects=False)
 
             excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
-            headers = [(name, value) for (name, value) in resp.raw.headers.items()
-                       if name.lower() not in excluded_headers]
+            # headers = [(name, value) for (name, value) in resp.raw.headers.items()
+            #            if name.lower() not in excluded_headers]
 
             current_request['reference'] = reference
             write_yaml_file(filepath, current_request, resp.content.decode())
@@ -101,6 +114,13 @@ def handler(path):
 
         if req['method'] == 'PUT' and req['path'] == mockmania_endpoint:
             set_mock_list_folder(request.data.decode())
+            return Response(response={"msg":"ok"},
+                            status=200,
+                            mimetype="application/json")
+
+        if req['method'] == 'PUT' and req['path'] == mockmania_output:
+            set_mock_mania_output(request.data.decode())
+
             return Response(response={"msg":"ok"},
                             status=200,
                             mimetype="application/json")
