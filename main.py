@@ -4,7 +4,7 @@ import time
 
 import requests
 import yaml
-from flask import Flask, Response
+from flask import Flask, Response, abort
 from flask import request
 from gevent.pywsgi import WSGIServer
 
@@ -111,6 +111,8 @@ def handler(path):
     for ml in mock_list:
         resp = get_response(ml, req, request)
         if resp:
+            if resp == 'abort(504)':
+                abort(504)
             return Response(response=resp,
                             status=200,
                             mimetype="application/json")
@@ -139,7 +141,6 @@ def write_yaml_file(filename, req, response_text):
 
 
 if __name__ == '__main__':
-    # http_server = WSGIServer(('', 7000), app)
-    # http_server.serve_forever()
-
-    app.run(port=7000)
+    print("Server start")
+    http_server = WSGIServer(('', 7000), app)
+    http_server.serve_forever()
