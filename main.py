@@ -115,14 +115,14 @@ def handler(path):
 
         if req['method'] == 'PUT' and req['path'] == endpoint_set_mocks_folder:
             set_mocks_folder(request.data.decode())
-            return Response(response={"msg":"ok"},
+            return Response(response='{"msg":"ok"}',
                             status=200,
                             mimetype="application/json")
 
         if req['method'] == 'PUT' and req['path'] == endpoint_set_mock_output:
             set_mock_output(request.data.decode())
 
-            return Response(response={"msg":"ok"},
+            return Response(response='{"msg":"ok"}',
                             status=200,
                             mimetype="application/json")
 
