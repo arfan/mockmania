@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 import time
 
 import requests
@@ -154,6 +155,14 @@ def get_mock_filename(path, mock_list_folder):
     return filename
 
 
+def represent_int(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+
+
 def write_mock_yaml_file(filename, req, response_text):
     text_file = open(filename, "w")
     req['response'] = response_text
@@ -162,7 +171,10 @@ def write_mock_yaml_file(filename, req, response_text):
 
 
 if __name__ == '__main__':
-    # print("Server start")
-    # http_server = WSGIServer(('', 7000), app)
-    # http_server.serve_forever()
-    app.run(port=7000)
+    if len(sys.argv) > 1:
+        if represent_int(sys.argv[1]):
+            app.run(port=int(sys.argv[1]))
+        else:
+            print("Usage python main.py [port]")
+    else:
+        app.run(port=7000)
