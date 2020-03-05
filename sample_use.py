@@ -63,3 +63,23 @@ text_file.close()
 # call mock hello reference api, should return same result as hello
 result = requests.get('http://localhost:7000/hello_reference')
 assert result.text == 'Hello, World!'
+
+
+# write new mocks in folder
+text_file = open(test_mocks_folder+'/with_param.yaml', "w")
+n = text_file.write("""method: GET
+path: users/{}/details
+response: |
+  {
+    "name": "user one",
+    "address": "user address"
+  }
+""")
+text_file.close()
+
+# call user api with parameter
+result = requests.get('http://localhost:7000/users/123413523/details')
+result_json = result.json()
+
+assert result_json.get('name') == 'user one'
+assert result_json.get('address') == 'user address'

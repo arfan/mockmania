@@ -1,0 +1,7 @@
+method: GET
+path: users/{}/details
+response: |
+  {
+    "name": "user one",
+    "address" "user address"
+  }
