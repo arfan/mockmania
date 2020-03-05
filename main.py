@@ -2,6 +2,7 @@ import json
 import os
 import sys
 import time
+from os import path
 
 import requests
 import yaml
@@ -78,10 +79,12 @@ def get_response(filepath, current_request, origin_request):
 
 
 def get_mocks_folder():
-    with open(mocks_folder_file_name, 'r') as file:
-        mock_list_folder = file.read().replace('\n', '')
-        return mock_list_folder
-
+    if path.exists(mocks_folder_file_name):
+        with open(mocks_folder_file_name, 'r') as file:
+            mock_list_folder = file.read().replace('\n', '')
+            return mock_list_folder
+    else:
+        return "mocks"
 
 def read_mock_list(mock_list_folder):
     path = mock_list_folder
@@ -179,8 +182,8 @@ def write_mock_yaml_file(filename, req, response_text):
 if __name__ == '__main__':
     if len(sys.argv) > 1:
         if represent_int(sys.argv[1]):
-            app.run(port=int(sys.argv[1]))
+            app.run(host='0.0.0.0', port=int(sys.argv[1]))
         else:
             print("Usage python main.py [port]")
     else:
-        app.run(port=7000)
+        app.run(host='0.0.0.0', port=7000)

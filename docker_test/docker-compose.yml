@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  main-service:
+    build: ./main
+    ports:
+      - 7000:7000
+    environment:
+      - HOST=localhost
+      - PORT=7000
