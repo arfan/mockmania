@@ -8,7 +8,7 @@ import yaml
 from flask import Flask, Response, abort
 from flask import request
 
-from parse import parse
+import re
 
 app = Flask(__name__)
 HTTP_METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH']
@@ -41,11 +41,15 @@ def get_response(filepath, current_request, origin_request):
                 return None
 
         if m.get('path') is not None:
-            if parse(m.get('path'), current_request.get('path')) is None:
+            if current_request.get('path') is None:
+                return None
+            if re.fullmatch(m.get('path'), current_request.get('path')) is None:
                 return None
 
         if m.get('body'):
-            if not m.get('body') == current_request.get('body'):
+            if current_request.get('body') is None:
+                return None
+            if re.fullmatch(m.get('body'), current_request.get('body')) is None:
                 return None
 
         response = m.get('response')

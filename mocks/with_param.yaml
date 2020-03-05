@@ -1,5 +1,5 @@
 method: GET
-path: users/{}/details
+path: users/.*/details
 response: |
   {
     "name": "user one",

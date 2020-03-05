@@ -1,0 +1,7 @@
+method: POST
+path: users
+body: '{"user": ".*"}'
+response: |
+  {
+    "msg": "ok"
+  }

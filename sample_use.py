@@ -67,8 +67,8 @@ assert result.text == 'Hello, World!'
 
 # write new mocks in folder
 text_file = open(test_mocks_folder+'/with_param.yaml', "w")
-n = text_file.write("""method: GET
-path: users/{}/details
+text_file.write("""method: GET
+path: users/.*/details
 response: |
   {
     "name": "user one",
@@ -83,3 +83,27 @@ result_json = result.json()
 
 assert result_json.get('name') == 'user one'
 assert result_json.get('address') == 'user address'
+
+
+# write new mocks in folder
+text_file = open(test_mocks_folder+'/with_param_body.yaml', "w")
+text_file.write("""method: POST
+path: users
+body: '{"user": ".*"}'
+response: |
+  {
+    "msg": "ok message"
+  }
+""")
+text_file.close()
+
+# call user api with parameter
+result = requests.post('http://localhost:7000/users', json={"user": "1232132"})
+result_json = result.json()
+
+assert result_json.get('msg') == 'ok message'
+
+
+# call user api without parameter
+result = requests.post('http://localhost:7000/users')
+assert 'CHANGEME' in result.text
