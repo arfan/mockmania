@@ -1,4 +1,5 @@
 import unittest
+from http import HTTPStatus
 
 from mock import patch, MagicMock, mock_open
 
@@ -97,8 +98,8 @@ class HandlerTests(unittest.TestCase):
     @patch('os.path.isfile')
     @patch('main.set_mock_output')
     def test_handler_root_url_special_command_set_mock_output(self,
-                                                               set_mock_output: MagicMock,
-                                                               mock_os_path_isfile: MagicMock):
+                                                              set_mock_output: MagicMock,
+                                                              mock_os_path_isfile: MagicMock):
         mock_os_path_isfile.return_value = False
         response = self.app.put('/mock_output', follow_redirects=True, data="test_mock_output")
         self.assertEqual(response.status_code, 200)
@@ -108,8 +109,8 @@ class HandlerTests(unittest.TestCase):
     @patch('os.path.isfile')
     @patch('main.write_raw_mock_yaml_file')
     def test_handler_root_url_special_command_write_mock_bad_request(self,
-                                                               mock_write_raw_mock_yaml_file: MagicMock,
-                                                               mock_os_path_isfile: MagicMock):
+                                                                     mock_write_raw_mock_yaml_file: MagicMock,
+                                                                     mock_os_path_isfile: MagicMock):
         mock_os_path_isfile.return_value = False
         response = self.app.put('/mock_write', follow_redirects=True, data="test_mock_output: test")
         self.assertEqual(response.status_code, 400)
@@ -118,13 +119,77 @@ class HandlerTests(unittest.TestCase):
     @patch('os.path.isfile')
     @patch('main.write_raw_mock_yaml_file')
     def test_handler_root_url_special_command_write_mock_valid_location(self,
-                                                               mock_write_raw_mock_yaml_file: MagicMock,
-                                                               mock_os_path_isfile: MagicMock):
+                                                                        mock_write_raw_mock_yaml_file: MagicMock,
+                                                                        mock_os_path_isfile: MagicMock):
         mock_os_path_isfile.return_value = False
         response = self.app.put('/mock_write', follow_redirects=True, data='location: test_location.yaml')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, b'{"msg":"ok"}')
         mock_write_raw_mock_yaml_file.assert_called_once_with('test_location.yaml', 'location: test_location.yaml')
+
+    @patch('main.get_mocks_folder')
+    @patch('main.read_mock_list')
+    @patch('main.get_mock_filename')
+    @patch('os.path.isfile')
+    @patch('main.get_response')
+    def test_handler_root_url_with_mock_list_abort(self,
+                                                   mock_get_response: MagicMock,
+                                                   mock_os_path_isfile: MagicMock,
+                                                   mock_get_mock_filename: MagicMock,
+                                                   mock_read_mock_list: MagicMock,
+                                                   mock_get_mocks_folder: MagicMock, ):
+        mock_os_path_isfile.return_value = False
+        mock_get_mocks_folder.return_value = "test_mock_folder"
+        mock_read_mock_list.return_value = ['ml']
+        mock_get_mock_filename.return_value = "test_mock_file_name"
+        mock_get_response.return_value = 'abort(504)'
+
+        response = self.app.get('/', follow_redirects=True)
+        self.assertEqual(response.status_code, 504)
+
+    @patch('main.get_mocks_folder')
+    @patch('main.read_mock_list')
+    @patch('main.get_mock_filename')
+    @patch('os.path.isfile')
+    @patch('main.get_response')
+    def test_handler_root_url_with_mock_list_normal(self,
+                                                    mock_get_response: MagicMock,
+                                                    mock_os_path_isfile: MagicMock,
+                                                    mock_get_mock_filename: MagicMock,
+                                                    mock_read_mock_list: MagicMock,
+                                                    mock_get_mocks_folder: MagicMock, ):
+        mock_os_path_isfile.return_value = False
+        mock_get_mocks_folder.return_value = "test_mock_folder"
+        mock_read_mock_list.return_value = ['ml']
+        mock_get_mock_filename.return_value = "test_mock_file_name"
+        mock_get_response.return_value = 'hello_response'
+
+        response = self.app.get('/', follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, b'hello_response')
+
+    @patch('main.write_mock_yaml_file')
+    @patch('main.get_mocks_folder')
+    @patch('main.read_mock_list')
+    @patch('main.get_mock_filename')
+    @patch('os.path.isfile')
+    def test_handler_root_url_write_file_exception(self,
+                              mock_os_path_isfile: MagicMock,
+                              mock_get_mock_filename: MagicMock,
+                              mock_read_mock_list: MagicMock,
+                              mock_get_mocks_folder: MagicMock,
+                              mock_write_mock_yaml_file: MagicMock):
+        mock_os_path_isfile.return_value = False
+        mock_get_mocks_folder.return_value = "test_mock_folder"
+        mock_read_mock_list.return_value = []
+        mock_get_mock_filename.return_value = "test_mock_file_name"
+        mock_write_mock_yaml_file.side_effect = [Exception]
+
+        response = self.app.get('/', follow_redirects=True)
+
+        self.assertEqual(response.status_code, HTTPStatus.INTERNAL_SERVER_ERROR)
+        self.assertEqual(response.data, b'{"msg":"fail to write file, please check mocks folder"}')
+
 
 if __name__ == "__main__":
     unittest.main()
