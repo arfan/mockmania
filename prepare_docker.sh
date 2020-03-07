@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 cp main.py docker_test/main/
 cp sample_use.py docker_test/main/
 cp requirements.txt docker_test/main/

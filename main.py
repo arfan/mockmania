@@ -24,15 +24,13 @@ mocks_folder_file_name = 'mocks_folder'
 
 
 def set_mocks_folder(mock_list_folder):
-    text_file = open(mocks_folder_file_name, "w")
-    text_file.write(mock_list_folder)
-    text_file.close()
+    with open(mocks_folder_file_name, "w") as text_file:
+        text_file.write(mock_list_folder)
 
 
 def set_mock_output(mock_output):
-    text_file = open(mock_output_file_name, "w")
-    text_file.write(mock_output)
-    text_file.close()
+    with open(mock_output_file_name, "w") as text_file:
+        text_file.write(mock_output)
 
 
 def get_response(filepath, current_request, origin_request):
@@ -147,7 +145,6 @@ def handler(path):
                 return Response(response='{"msg":"location not valid"}',
                                 status=HTTPStatus.BAD_REQUEST,
                                 mimetype="application/json")
-            print(yaml_parse)
             write_raw_mock_yaml_file(location, file_content)
             return Response(response='{"msg":"ok"}',
                             status=200,
