@@ -1,7 +1,8 @@
 import unittest
 from mock import mock_open, patch, call, MagicMock
 
-from main import set_mocks_folder, set_mock_output, ENDPOINT_SET_MOCKS_FOLDER, ENDPOINT_SET_MOCK_OUTPUT, get_response
+from main import set_mocks_folder, set_mock_output, ENDPOINT_SET_MOCKS_FOLDER, ENDPOINT_SET_MOCK_OUTPUT, get_response, \
+    get_mocks_folder, MOCKS_FOLDER_FILE_NAME
 
 
 class TestMainSetMocksFolder(unittest.TestCase):
@@ -65,6 +66,24 @@ class TestMainGetResponse(unittest.TestCase):
 
             mock_requests.assert_called_once()
             mock_write.assert_called_once()
+
+
+class TestMainGetMocksFolder(unittest.TestCase):
+    @patch('main.path')
+    def test_get_mocks_folder_path_exist(self, mock_path: MagicMock):
+        with patch("builtins.open", mock_open(read_data="data_result")) as mock_file:
+            mock_path.exists.return_value = True
+            result = get_mocks_folder()
+            mock_file.assert_called_with(MOCKS_FOLDER_FILE_NAME, 'r')
+            assert result == 'data_result'
+            
+    @patch('main.path')
+    def test_get_mocks_folder_path_not_exist(self, mock_path: MagicMock):
+        with patch("builtins.open", mock_open(read_data="data")) as mock_file:
+            mock_path.exists.return_value = False
+            result = get_mocks_folder()
+            assert result == "mocks"
+
 
 if __name__ == '__main__':
     unittest.main()
