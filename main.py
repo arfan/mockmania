@@ -15,21 +15,21 @@ import re
 app = Flask(__name__)
 HTTP_METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH']
 
-endpoint_set_mocks_folder = 'mocks_folder'
-endpoint_set_mock_output = 'mock_output'
-endpoint_write_mock_file = 'mock_write'
+ENDPOINT_SET_MOCKS_FOLDER = 'mocks_folder'
+ENDPOINT_SET_MOCK_OUTPUT = 'mock_output'
+ENDPOINT_WRITE_MOCK_FILE = 'mock_write'
 
-mock_output_file_name = 'mock_output'
-mocks_folder_file_name = 'mocks_folder'
+MOCK_OUTPUT_FILE_NAME = 'mock_output'
+MOCKS_FOLDER_FILE_NAME = 'mocks_folder'
 
 
 def set_mocks_folder(mock_list_folder):
-    with open(mocks_folder_file_name, "w") as text_file:
+    with open(MOCKS_FOLDER_FILE_NAME, "w") as text_file:
         text_file.write(mock_list_folder)
 
 
 def set_mock_output(mock_output):
-    with open(mock_output_file_name, "w") as text_file:
+    with open(MOCK_OUTPUT_FILE_NAME, "w") as text_file:
         text_file.write(mock_output)
 
 
@@ -79,8 +79,8 @@ def get_response(filepath, current_request, origin_request):
 
 
 def get_mocks_folder():
-    if path.exists(mocks_folder_file_name):
-        with open(mocks_folder_file_name, 'r') as file:
+    if path.exists(MOCKS_FOLDER_FILE_NAME):
+        with open(MOCKS_FOLDER_FILE_NAME, 'r') as file:
             mock_list_folder = file.read().replace('\n', '')
             return mock_list_folder
     else:
@@ -101,9 +101,9 @@ def read_mock_list(mock_list_folder):
 @app.route('/<path:path>', methods=HTTP_METHODS)
 def handler(path):
     # check default output
-    if os.path.isfile(mock_output_file_name):
-        content = open(mock_output_file_name, 'r').read()
-        os.remove(mock_output_file_name)
+    if os.path.isfile(MOCK_OUTPUT_FILE_NAME):
+        content = open(MOCK_OUTPUT_FILE_NAME, 'r').read()
+        os.remove(MOCK_OUTPUT_FILE_NAME)
         return content
 
     req = {
@@ -123,20 +123,20 @@ def handler(path):
         if body_content != 'null':
             req['body'] = body_content
 
-        if req['method'] == 'PUT' and req['path'] == endpoint_set_mocks_folder:
+        if req['method'] == 'PUT' and req['path'] == ENDPOINT_SET_MOCKS_FOLDER:
             set_mocks_folder(request.data.decode())
             return Response(response='{"msg":"ok"}',
                             status=200,
                             mimetype="application/json")
 
-        if req['method'] == 'PUT' and req['path'] == endpoint_set_mock_output:
+        if req['method'] == 'PUT' and req['path'] == ENDPOINT_SET_MOCK_OUTPUT:
             set_mock_output(request.data.decode())
 
             return Response(response='{"msg":"ok"}',
                             status=200,
                             mimetype="application/json")
 
-        if req['method'] == 'PUT' and req['path'] == endpoint_write_mock_file:
+        if req['method'] == 'PUT' and req['path'] == ENDPOINT_WRITE_MOCK_FILE:
             file_content = request.data.decode()
             yaml_parse = yaml.safe_load(file_content)
             location = yaml_parse.get('location')
