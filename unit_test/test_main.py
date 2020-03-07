@@ -2,7 +2,8 @@ import unittest
 from mock import mock_open, patch, call, MagicMock
 
 from main import set_mocks_folder, set_mock_output, ENDPOINT_SET_MOCKS_FOLDER, ENDPOINT_SET_MOCK_OUTPUT, get_response, \
-    get_mocks_folder, MOCKS_FOLDER_FILE_NAME, read_mock_list
+    get_mocks_folder, MOCKS_FOLDER_FILE_NAME, read_mock_list, get_mock_filename, represent_int, write_mock_yaml_file, \
+    write_raw_mock_yaml_file
 
 
 class TestMainSetMocksFolder(unittest.TestCase):
@@ -76,7 +77,7 @@ class TestMainGetMocksFolder(unittest.TestCase):
             result = get_mocks_folder()
             mock_file.assert_called_with(MOCKS_FOLDER_FILE_NAME, 'r')
             assert result == 'data_result'
-            
+
     @patch('main.path')
     def test_get_mocks_folder_path_not_exist(self, mock_path: MagicMock):
         with patch("builtins.open", mock_open(read_data="data")) as mock_file:
@@ -97,6 +98,50 @@ class TestMainReadMockList(unittest.TestCase):
             call('t_root', 'file2')
         ]
         mock_os_path_join.assert_has_calls(calls=calls, any_order=True)
+
+
+class TestMainGetMockFilename(unittest.TestCase):
+    @patch('time.time')
+    def test_get_mock_filename(self,
+                               mock_time_time: MagicMock):
+        mock_time_time.return_value = 1583603908950.12332234
+        result = get_mock_filename('test_path', 'test_mock_list_folder', 'POST')
+        self.assertEqual(result, 'test_mock_list_folder/POST_test_path_1583603908950123.yaml')
+
+
+class TestMainRepresentInt(unittest.TestCase):
+    def test_represent_int_false(self):
+        result = represent_int('1231231xxxx')
+        self.assertEqual(result, False)
+
+    def test_represent_int_true(self):
+        result = represent_int('1231231')
+        self.assertEqual(result, True)
+
+
+class TestMainWriteMockYamlFile(unittest.TestCase):
+    def test_write_mock_yaml_file(self):
+        with patch("builtins.open", mock_open(read_data="data")) as mock_file:
+            write_mock_yaml_file("test_file_name.yaml", {}, "response")
+            mock_file.assert_called_with("test_file_name.yaml", 'w')
+            mock_file.assert_has_calls([call().write('response: response\n')])
+
+    @patch('yaml.dump')
+    def test_write_mock_yaml_file_exception_when_writing(self, mock_yaml_dump):
+        mock_openfile = mock_open(read_data="data")
+        mock_yaml_dump.side_effect = [Exception]
+        with patch("builtins.open", mock_openfile) as mock_file:
+            with self.assertRaises(Exception): write_mock_yaml_file("test_file_name.yaml", {}, "response")
+
+
+class TestMainWriteRawMockYamlFile(unittest.TestCase):
+    def test_write_raw_mock_yaml_file(self):
+        with patch("builtins.open", mock_open(read_data="data")) as mock_file:
+            write_raw_mock_yaml_file("test_file_name.yaml", {})
+            mock_file.assert_called_with("test_file_name.yaml", 'w')
+
+    def test_write_raw_mock_yaml_file_exception(self):
+        with self.assertRaises(Exception): write_raw_mock_yaml_file("asjfalsdjflaksjdflasdf/test_file_name.yaml", {})
 
 
 if __name__ == '__main__':

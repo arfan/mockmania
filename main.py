@@ -166,7 +166,7 @@ def handler(path):
                             status=200,
                             mimetype="application/json")
 
-    filename = get_mock_filename(path, mock_list_folder)
+    filename = get_mock_filename(path, mock_list_folder, request.method)
     response_text = "CHANGEME in file {}".format(filename)
 
     # create new mock list
@@ -179,9 +179,9 @@ def handler(path):
     return response_text
 
 
-def get_mock_filename(path, mock_list_folder):
+def get_mock_filename(path, mock_list_folder, method):
     milliseconds = int(round(time.time() * 1000))
-    filename = "{}/{}_{}_{}.yaml".format(mock_list_folder, request.method, path.replace('/', '_'),
+    filename = "{}/{}_{}_{}.yaml".format(mock_list_folder, method, path.replace('/', '_'),
                                          str(milliseconds))
     return filename
 
@@ -196,23 +196,22 @@ def represent_int(s):
 
 def write_mock_yaml_file(filename, req, response_text):
     try:
-        text_file = open(filename, "w")
-        req['response'] = response_text
-        text_file.write(yaml.dump(req))
-        text_file.close()
+        with open(filename, "w") as text_file:
+            req['response'] = response_text
+            text_file.write(yaml.dump(req))
     except Exception as e:
         raise e
 
 
 def write_raw_mock_yaml_file(filename, file_content):
     try:
-        text_file = open(filename, "w")
-        text_file.write(file_content)
-        text_file.close()
+        with open(filename, "w") as text_file:
+            text_file.write(file_content)
     except Exception as e:
         raise e
 
-if __name__ == '__main__':
+
+if __name__ == '__main__': # pragma: no cover
     if len(sys.argv) > 1:
         if represent_int(sys.argv[1]):
             app.run(host='0.0.0.0', port=int(sys.argv[1]))
