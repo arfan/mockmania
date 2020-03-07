@@ -2,7 +2,7 @@ import unittest
 from mock import mock_open, patch, call, MagicMock
 
 from main import set_mocks_folder, set_mock_output, ENDPOINT_SET_MOCKS_FOLDER, ENDPOINT_SET_MOCK_OUTPUT, get_response, \
-    get_mocks_folder, MOCKS_FOLDER_FILE_NAME
+    get_mocks_folder, MOCKS_FOLDER_FILE_NAME, read_mock_list
 
 
 class TestMainSetMocksFolder(unittest.TestCase):
@@ -83,6 +83,20 @@ class TestMainGetMocksFolder(unittest.TestCase):
             mock_path.exists.return_value = False
             result = get_mocks_folder()
             assert result == "mocks"
+
+
+class TestMainReadMockList(unittest.TestCase):
+    @patch('os.walk')
+    @patch('os.path.join')
+    def test_read_mock_list(self, mock_os_path_join: MagicMock, mock_os_walk: MagicMock):
+        mock_os_walk.return_value = [('t_root', 't_directories', ['file1', 'file2'])]
+        read_mock_list('test_mock_list_folder')
+        mock_os_walk.assert_called_with("test_mock_list_folder")
+        calls = [
+            call('t_root', 'file1'),
+            call('t_root', 'file2')
+        ]
+        mock_os_path_join.assert_has_calls(calls=calls, any_order=True)
 
 
 if __name__ == '__main__':
