@@ -1,5 +1,5 @@
 import unittest
-from mock import mock_open, patch, call
+from mock import mock_open, patch, call, MagicMock
 
 from main import set_mocks_folder, set_mock_output, ENDPOINT_SET_MOCKS_FOLDER, ENDPOINT_SET_MOCK_OUTPUT, get_response
 
@@ -25,6 +25,47 @@ class TestMainGetResponse(unittest.TestCase):
     def test_get_response_empty_request(self):
         with patch("builtins.open", mock_open(read_data='test: testaja')) as mock_file:
             get_response("testfile.txt", {}, {})
+            mock_file.assert_called_with('testfile.txt')
+
+    def test_get_response_method_but_empty_request(self):
+        with patch("builtins.open", mock_open(read_data='method: POST')) as mock_file:
+            get_response("testfile.txt", {}, {})
+            mock_file.assert_called_with('testfile.txt')
+
+    def test_get_response_path_but_empty_request(self):
+        with patch("builtins.open", mock_open(read_data='path: sample_path')) as mock_file:
+            get_response("testfile.txt", {}, {})
+            mock_file.assert_called_with('testfile.txt')
+
+    def test_get_response_path_and_current_req(self):
+        with patch("builtins.open", mock_open(read_data='path: sample_path')) as mock_file:
+            get_response("testfile.txt", {'path': "different_sample_path"}, {})
+            mock_file.assert_called_with('testfile.txt')
+
+    def test_get_response_body_but_empty_request(self):
+        with patch("builtins.open", mock_open(read_data='body: sample_body')) as mock_file:
+            get_response("testfile.txt", {}, {})
+            mock_file.assert_called_with('testfile.txt')
+
+    def test_get_response_body_and_current_req(self):
+        with patch("builtins.open", mock_open(read_data='body: sample_body')) as mock_file:
+            get_response("testfile.txt", {'body': 'diff_sample_body'}, {})
+            mock_file.assert_called_with('testfile.txt')
+
+    @patch('requests.request')
+    @patch('main.write_mock_yaml_file')
+    def test_get_response_reference(self, mock_write, mock_requests):
+        with patch("builtins.open", mock_open(read_data='reference: test_reference')) as mock_file:
+            mock_origin_request = MagicMock()
+            get_response("testfile.txt", {}, mock_origin_request)
+            mock_file.assert_called_with('testfile.txt')
+
+            calls = [call.get('method'),
+                     call.get('headers'),
+                     call.get('headers'),
+                     call.get_data(),
+                     call.get('cookies')]
+            mock_origin_request.assert_has_calls(calls=calls, any_order=True)
 
 
 if __name__ == '__main__':

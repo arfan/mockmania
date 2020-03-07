@@ -59,13 +59,21 @@ def get_response(filepath, current_request, origin_request):
             reference = m.get('reference')
 
             if reference:
+                method = origin_request.get('method')
+                url = reference
+                if origin_request.get('headers'):
+                    headers = {key: value for (key, value) in origin_request.get('headers') if key != 'Host'}
+                data = origin_request.get_data()
+                cookies = origin_request.get('cookies')
+                allow_redirects = False
+
                 resp = requests.request(
-                    method=origin_request.method,
-                    url=reference,
-                    headers={key: value for (key, value) in origin_request.headers if key != 'Host'},
-                    data=origin_request.get_data(),
-                    cookies=origin_request.cookies,
-                    allow_redirects=False)
+                    method=method,
+                    url=url,
+                    headers=headers,
+                    data=data,
+                    cookies=cookies,
+                    allow_redirects=allow_redirects)
 
                 current_request['reference'] = reference
                 write_mock_yaml_file(filepath, current_request, resp.content.decode())
