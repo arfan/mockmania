@@ -58,22 +58,19 @@ def get_response(filepath, current_request, origin_request):
         if response is None:
             reference = m.get('reference')
 
-            resp = requests.request(
-                method=origin_request.method,
-                url=reference,
-                headers={key: value for (key, value) in origin_request.headers if key != 'Host'},
-                data=origin_request.get_data(),
-                cookies=origin_request.cookies,
-                allow_redirects=False)
+            if reference:
+                resp = requests.request(
+                    method=origin_request.method,
+                    url=reference,
+                    headers={key: value for (key, value) in origin_request.headers if key != 'Host'},
+                    data=origin_request.get_data(),
+                    cookies=origin_request.cookies,
+                    allow_redirects=False)
 
-            # excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
-            # headers = [(name, value) for (name, value) in resp.raw.headers.items()
-            #            if name.lower() not in excluded_headers]
+                current_request['reference'] = reference
+                write_mock_yaml_file(filepath, current_request, resp.content.decode())
 
-            current_request['reference'] = reference
-            write_mock_yaml_file(filepath, current_request, resp.content.decode())
-
-            return resp.content
+                return resp.content
 
         return response
 
