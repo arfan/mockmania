@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-python -m unittest discover -s /Users/arfan/code/mockmania/unit_test
+python -m unittest discover -s unit_test
