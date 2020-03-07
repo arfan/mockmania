@@ -7,3 +7,5 @@ echo lastLine
 kill -9 $(lsof -t -i:7000 -sTCP:LISTEN)
 
 rm nohup.out
+
+echo mocks > mocks_folder

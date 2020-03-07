@@ -8,3 +8,4 @@ rm docker_test/main/sample_use.py
 rm -rf SAMPLE_USE_*
 
 rm nohup.out
+
