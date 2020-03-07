@@ -54,19 +54,17 @@ class TestMainGetResponse(unittest.TestCase):
 
     @patch('requests.request')
     @patch('main.write_mock_yaml_file')
-    def test_get_response_reference(self, mock_write, mock_requests):
+    def test_get_response_reference(self, mock_write: MagicMock, mock_requests: MagicMock):
         with patch("builtins.open", mock_open(read_data='reference: test_reference')) as mock_file:
             mock_origin_request = MagicMock()
             get_response("testfile.txt", {}, mock_origin_request)
             mock_file.assert_called_with('testfile.txt')
 
-            calls = [call.get('method'),
-                     call.get('headers'),
-                     call.get('headers'),
-                     call.get_data(),
-                     call.get('cookies')]
+            calls = [call.get_data()]
             mock_origin_request.assert_has_calls(calls=calls, any_order=True)
 
+            mock_requests.assert_called_once()
+            mock_write.assert_called_once()
 
 if __name__ == '__main__':
     unittest.main()

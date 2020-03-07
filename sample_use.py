@@ -31,7 +31,7 @@ print("test mock folder filename", test_mocks_folder)
 print("----")
 print("set mocks folder to test_mock")
 result = requests.put('{}/mocks_folder'.format(BASE_URL), data=test_mocks_folder)
-print(result.text)
+print("api response", result.text)
 print("sleep 1 second to make sure api called properly")
 sleep(1)
 
@@ -106,6 +106,7 @@ text_file.close()
 print("----")
 print("call mock hello reference api, should return same result as hello")
 result = requests.get('{}/hello_reference'.format(BASE_URL))
+print("result", result)
 assert result.text == 'Hello, World!'
 
 

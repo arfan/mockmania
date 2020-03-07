@@ -59,12 +59,12 @@ def get_response(filepath, current_request, origin_request):
             reference = m.get('reference')
 
             if reference:
-                method = origin_request.get('method')
+                method = origin_request.method
                 url = reference
-                if origin_request.get('headers'):
-                    headers = {key: value for (key, value) in origin_request.get('headers') if key != 'Host'}
+                if origin_request.headers:
+                    headers = {key: value for (key, value) in origin_request.headers if key != 'Host'}
                 data = origin_request.get_data()
-                cookies = origin_request.get('cookies')
+                cookies = origin_request.cookies
                 allow_redirects = False
 
                 resp = requests.request(
