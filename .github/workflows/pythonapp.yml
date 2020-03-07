@@ -34,4 +34,10 @@ jobs:
     - name: Test with unittest
       run: |
         python -m unittest discover -s unit_test
-        
+
+    - name: Integration test with sample_use.py
+      run: |
+        nohup python main.py &
+        sleep 3
+        python sample_use.py
+        echo lastLine
