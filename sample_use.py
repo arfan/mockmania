@@ -26,8 +26,7 @@ print("BASE_URL", BASE_URL)
 test_mocks_folder = str(uuid.uuid1())
 
 # set mocks folder to test_mock
-result = requests.put('{}/mocks_folder'.format(BASE_URL), data=test_mocks_folder)
-print(result.text)
+requests.put('{}/mocks_folder'.format(BASE_URL), data=test_mocks_folder)
 sleep(1)
 new_mock_folder = get_mocks_folder()
 assert new_mock_folder == test_mocks_folder
@@ -120,7 +119,22 @@ result_json = result.json()
 
 assert result_json.get('msg') == 'ok message'
 
-
 # call user api without parameter
 result = requests.post('{}/users'.format(BASE_URL))
 assert 'CHANGEME' in result.text
+
+
+# write mock file via api
+location = test_mocks_folder+'/hello_from_write.yaml'
+result = requests.put('{}/mock_write'.format(BASE_URL), data="""location: """+location+"""
+method: GET
+path: hello_from_write
+response: '{"message":"hello from write"}'
+""")
+result_json = result.json()
+
+assert result_json.get('msg') == 'ok'
+
+
+result = requests.get('{}/hello_from_write'.format(BASE_URL))
+assert result.json().get('message')=='hello from write'
