@@ -2,6 +2,7 @@ import json
 import os
 import sys
 import time
+from http import HTTPStatus
 from os import path
 
 import requests
@@ -16,6 +17,7 @@ HTTP_METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'T
 
 endpoint_set_mocks_folder = 'mocks_folder'
 endpoint_set_mock_output = 'mock_output'
+endpoint_write_mock_file = 'mock_write'
 
 mock_output_file_name = 'mock_output'
 mocks_folder_file_name = 'mocks_folder'
@@ -86,12 +88,11 @@ def get_mocks_folder():
     else:
         return "mocks"
 
-def read_mock_list(mock_list_folder):
-    path = mock_list_folder
 
+def read_mock_list(mock_list_folder):
     files = []
     # r=root, d=directories, f = files
-    for r, d, f in os.walk(path):
+    for r, d, f in os.walk(mock_list_folder):
         for file in f:
             files.append(os.path.join(r, file))
 
@@ -117,6 +118,7 @@ def handler(path):
     else:
         req['path'] = path
 
+    # special command/request
     if request.method != 'GET':
         body_content = json.dumps(request.json)
 
@@ -132,6 +134,21 @@ def handler(path):
         if req['method'] == 'PUT' and req['path'] == endpoint_set_mock_output:
             set_mock_output(request.data.decode())
 
+            return Response(response='{"msg":"ok"}',
+                            status=200,
+                            mimetype="application/json")
+
+        if req['method'] == 'PUT' and req['path'] == endpoint_write_mock_file:
+            file_content = request.data.decode()
+            yaml_parse = yaml.safe_load(file_content)
+            location = yaml_parse.get('location')
+
+            if not location or not location.endswith('.yaml') or location.startswith("/"):
+                return Response(response='{"msg":"location not valid"}',
+                                status=HTTPStatus.BAD_REQUEST,
+                                mimetype="application/json")
+            print(yaml_parse)
+            write_raw_mock_yaml_file(location, file_content)
             return Response(response='{"msg":"ok"}',
                             status=200,
                             mimetype="application/json")
@@ -152,8 +169,12 @@ def handler(path):
     response_text = "CHANGEME in file {}".format(filename)
 
     # create new mock list
-    write_mock_yaml_file(filename, req, response_text)
-
+    try:
+        write_mock_yaml_file(filename, req, response_text)
+    except Exception as e:
+        return Response(response='{"msg":"fail to write file, please check mocks folder"}',
+                            status=HTTPStatus.INTERNAL_SERVER_ERROR,
+                            mimetype="application/json")
     return response_text
 
 
@@ -173,11 +194,22 @@ def represent_int(s):
 
 
 def write_mock_yaml_file(filename, req, response_text):
-    text_file = open(filename, "w")
-    req['response'] = response_text
-    text_file.write(yaml.dump(req))
-    text_file.close()
+    try:
+        text_file = open(filename, "w")
+        req['response'] = response_text
+        text_file.write(yaml.dump(req))
+        text_file.close()
+    except Exception as e:
+        raise e
 
+
+def write_raw_mock_yaml_file(filename, file_content):
+    try:
+        text_file = open(filename, "w")
+        text_file.write(file_content)
+        text_file.close()
+    except Exception as e:
+        raise e
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
