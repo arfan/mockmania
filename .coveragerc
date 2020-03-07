@@ -1,0 +1,6 @@
+[run]
+omit =
+    # omit everything in /usr
+    # omit this single file
+    venv/*
+    unit_test/*
