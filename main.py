@@ -117,7 +117,7 @@ def handler(path):
 
     qs = request.query_string.decode()
     if qs:
-        req['path'] = "{}?{}".format(path, request.query_string.decode())
+        req['path'] = "{}?{}".format(path, qs)
     else:
         req['path'] = path
 
