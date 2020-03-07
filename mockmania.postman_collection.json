@@ -1,0 +1,189 @@
+{
+	"info": {
+		"_postman_id": "40d25a73-4314-47d5-be40-c597d1705eb4",
+		"name": "mockmania",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "hello",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "text/plain",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:7000/hello",
+					"host": [
+						"localhost"
+					],
+					"port": "7000",
+					"path": [
+						"hello"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "body with param",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"user\": \"123234\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:7000/users",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7000",
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "path with param",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:7000/users/123455/details",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7000",
+					"path": [
+						"users",
+						"123455",
+						"details"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "set mock output",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"mock output\",\n    \"address\" \"set mock output\"\n  }\n"
+				},
+				"url": {
+					"raw": "localhost:7000/mock_output",
+					"host": [
+						"localhost"
+					],
+					"port": "7000",
+					"path": [
+						"mock_output"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "set mocks folder",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "mocks"
+				},
+				"url": {
+					"raw": "localhost:7000/mocks_folder",
+					"host": [
+						"localhost"
+					],
+					"port": "7000",
+					"path": [
+						"mocks_folder"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "write mock",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "location: mocks/hello2.yaml\nmethod: GET\npath: hello\nresponse: '{\"message\":\"hello indonesia\"}'\n"
+				},
+				"url": {
+					"raw": "http://localhost:7000/mock_write",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7000",
+					"path": [
+						"mock_write"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
