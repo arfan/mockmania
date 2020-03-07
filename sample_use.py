@@ -1,11 +1,10 @@
-import logging
 import os
-import sys
 import uuid
 from pathlib import Path
 from time import sleep
 
 import requests
+
 from main import get_mocks_folder
 
 SERVICE_HOST = os.getenv('HOST')
@@ -25,7 +24,7 @@ print("BASE_URL", BASE_URL)
 # create test mocks folder file name
 print("----")
 print("create test mocks folder file name")
-test_mocks_folder = str(uuid.uuid1())
+test_mocks_folder = "SAMPLE_USE_"+str(uuid.uuid1())
 print("test mock folder filename", test_mocks_folder)
 
 print("----")
@@ -106,7 +105,7 @@ text_file.close()
 print("----")
 print("call mock hello reference api, should return same result as hello")
 result = requests.get('{}/hello_reference'.format(BASE_URL))
-print("result", result)
+print("result", result.text)
 assert result.text == 'Hello, World!'
 
 
