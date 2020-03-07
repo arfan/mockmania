@@ -121,39 +121,38 @@ def handler(path):
     else:
         req['path'] = path
 
-    # special command/request
     if request.method != 'GET':
-        body_content = json.dumps(request.json)
-
+        body_content = request.data.decode()
         if body_content != 'null':
             req['body'] = body_content
 
-        if req['method'] == 'PUT' and req['path'] == ENDPOINT_SET_MOCKS_FOLDER:
-            set_mocks_folder(request.data.decode())
-            return Response(response='{"msg":"ok"}',
-                            status=200,
+    # special command/request
+    if req['method'] == 'PUT' and req['path'] == ENDPOINT_SET_MOCKS_FOLDER:
+        set_mocks_folder(request.data.decode())
+        return Response(response='{"msg":"ok"}',
+                        status=200,
+                        mimetype="application/json")
+
+    if req['method'] == 'PUT' and req['path'] == ENDPOINT_SET_MOCK_OUTPUT:
+        set_mock_output(request.data.decode())
+
+        return Response(response='{"msg":"ok"}',
+                        status=200,
+                        mimetype="application/json")
+
+    if req['method'] == 'PUT' and req['path'] == ENDPOINT_WRITE_MOCK_FILE:
+        file_content = request.data.decode()
+        yaml_parse = yaml.safe_load(file_content)
+        location = yaml_parse.get('location')
+
+        if not location or not location.endswith('.yaml') or location.startswith("/"):
+            return Response(response='{"msg":"location not valid"}',
+                            status=HTTPStatus.BAD_REQUEST,
                             mimetype="application/json")
-
-        if req['method'] == 'PUT' and req['path'] == ENDPOINT_SET_MOCK_OUTPUT:
-            set_mock_output(request.data.decode())
-
-            return Response(response='{"msg":"ok"}',
-                            status=200,
-                            mimetype="application/json")
-
-        if req['method'] == 'PUT' and req['path'] == ENDPOINT_WRITE_MOCK_FILE:
-            file_content = request.data.decode()
-            yaml_parse = yaml.safe_load(file_content)
-            location = yaml_parse.get('location')
-
-            if not location or not location.endswith('.yaml') or location.startswith("/"):
-                return Response(response='{"msg":"location not valid"}',
-                                status=HTTPStatus.BAD_REQUEST,
-                                mimetype="application/json")
-            write_raw_mock_yaml_file(location, file_content)
-            return Response(response='{"msg":"ok"}',
-                            status=200,
-                            mimetype="application/json")
+        write_raw_mock_yaml_file(location, file_content)
+        return Response(response='{"msg":"ok"}',
+                        status=200,
+                        mimetype="application/json")
 
     mock_list_folder = get_mocks_folder()
     mock_list = read_mock_list(mock_list_folder)
