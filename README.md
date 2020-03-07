@@ -1,3 +1,4 @@
+![Python application](https://github.com/arfan/mockmania/workflows/Python%20application/badge.svg)
 # mockmania
 
 simple python mocking of http api, able to catch http request and directly modify the output.
@@ -20,5 +21,6 @@ $ python sample_use.py
  
 [![Watch the video](https://img.youtube.com/vi/jEBp2gXIbSM/hqdefault.jpg)](https://youtu.be/jEBp2gXIbSM)
 
-### sample using postman collection `mockmania.postman_collection.json`
+### sample using postman collection 
+`mockmania.postman_collection.json`
 
