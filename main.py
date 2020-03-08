@@ -41,17 +41,17 @@ MOCK_OUTPUT_FILE_NAME = 'mock_output'
 MOCKS_FOLDER_FILE_NAME = 'mocks_folder'
 
 
-def set_mocks_folder(mock_list_folder):
+def set_mocks_folder(mock_list_folder: str):
     with open(MOCKS_FOLDER_FILE_NAME, "w") as text_file:
         text_file.write(mock_list_folder)
 
 
-def set_mock_output(mock_output):
+def set_mock_output(mock_output: str):
     with open(MOCK_OUTPUT_FILE_NAME, "w") as text_file:
         text_file.write(mock_output)
 
 
-def get_response(filepath, current_request, origin_request):
+def get_response(filepath: str, current_request, origin_request):
     with open(filepath) as file:
         m = yaml.load(file, Loader=yaml.FullLoader)
 
@@ -213,14 +213,14 @@ def handler(path):
     return response_text
 
 
-def get_mock_filename(path, mock_list_folder, method):
+def get_mock_filename(path: str, mock_list_folder: str, method: str) -> str:
     milliseconds = int(round(time.time() * 1000))
     filename = "{}/{}_{}_{}.yaml".format(mock_list_folder, method, path.replace('/', '_'),
                                          str(milliseconds))
     return filename
 
 
-def represent_int(s):
+def represent_int(s: str) -> bool:
     try:
         int(s)
         return True
@@ -228,7 +228,7 @@ def represent_int(s):
         return False
 
 
-def write_mock_yaml_file(filename, req, response_text):
+def write_mock_yaml_file(filename: str, req, response_text: str):
     try:
         with open(filename, "w") as text_file:
             req['response'] = response_text
@@ -237,7 +237,7 @@ def write_mock_yaml_file(filename, req, response_text):
         raise e
 
 
-def write_raw_mock_yaml_file(filename, file_content):
+def write_raw_mock_yaml_file(filename: str, file_content: str):
     try:
         with open(filename, "w") as text_file:
             text_file.write(file_content)
