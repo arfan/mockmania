@@ -172,7 +172,7 @@ path: hello_from_write
 response: '{"message":"hello from write"}'
 """)
 result_json = result.json()
-
+print("result", result)
 assert result_json.get('msg') == 'ok'
 
 
@@ -180,3 +180,5 @@ print("----")
 print("call new written mock api")
 result = requests.get('{}/hello_from_write'.format(BASE_URL))
 assert result.json().get('message')=='hello from write'
+
+assert False
