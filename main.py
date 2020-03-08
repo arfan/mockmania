@@ -211,7 +211,7 @@ def write_raw_mock_yaml_file(filename, file_content):
         raise e
 
 
-if __name__ == '__main__': # pragma: no
+if __name__ == '__main__': # pragma: no cover
     if len(sys.argv) > 1:
         if represent_int(sys.argv[1]):
             app.run(host='0.0.0.0', port=int(sys.argv[1]))
