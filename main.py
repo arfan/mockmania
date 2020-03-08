@@ -4,6 +4,7 @@ import sys
 import time
 from http import HTTPStatus
 from os import path
+from typing import List
 
 import requests
 import yaml
@@ -100,7 +101,7 @@ def get_response(filepath, current_request, origin_request):
         return response
 
 
-def get_mocks_folder():
+def get_mocks_folder() -> str:
     if path.exists(MOCKS_FOLDER_FILE_NAME):
         with open(MOCKS_FOLDER_FILE_NAME, 'r') as file:
             mock_list_folder = file.read().replace('\n', '')
@@ -109,7 +110,7 @@ def get_mocks_folder():
         return "mocks"
 
 
-def read_mock_list(mock_list_folder):
+def read_mock_list(mock_list_folder) -> List[str]:
     files = []
     # r=root, d=directories, f = files
     for r, d, f in os.walk(mock_list_folder):
