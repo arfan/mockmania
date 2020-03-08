@@ -1,5 +1,6 @@
 help:
 	echo "list command: cleanup, preparedocker, coverage, dockertest, unittest, integrationtest, run"
+
 cleanup:
 	rm -f docker_test/main/main.py
 	rm -rf docker_test/main/mocks/
