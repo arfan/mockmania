@@ -30,7 +30,7 @@ print("test mock folder filename", test_mocks_folder)
 print("----")
 print("set mocks folder to test_mock")
 result = requests.put('{}/mocks_folder'.format(BASE_URL), data=test_mocks_folder)
-print("api response", result.text)
+print("result", result.text)
 print("sleep 1 second to make sure api called properly")
 sleep(1)
 
@@ -50,7 +50,7 @@ print("----")
 print("call mock api with some random string, this should create new file inside mock folder")
 print("and the result contains CHANGEME string")
 result = requests.get('{}/{}'.format(BASE_URL, str(uuid.uuid1())))
-print(result.text)
+print("result", result.text)
 assert 'CHANGEME' in result.text
 
 print("----")
@@ -66,6 +66,7 @@ text_file.close()
 print("----")
 print("call mock hello api")
 result = requests.get('{}/hello'.format(BASE_URL))
+print("result", result.text)
 assert result.text == 'Hello, World!'
 
 # set mock output
@@ -80,6 +81,7 @@ assert os.path.exists('mock_output')
 print("----")
 print("call mock hello api")
 result = requests.get('{}/hello'.format(BASE_URL))
+print("result", result.text)
 assert result.text == 'MOCK_OUTPUT'
 
 # asssert mock_output file not exist
@@ -89,6 +91,7 @@ assert not os.path.exists('mock_output')
 print("----")
 print("call again mock hello api, should return previous result")
 result = requests.get('{}/hello'.format(BASE_URL))
+print("result", result.text)
 assert result.text == 'Hello, World!'
 
 # write new mocks in folder, hello with reference
@@ -127,6 +130,7 @@ text_file.close()
 print("----")
 print("call user api with parameter")
 result = requests.get('{}/users/123413523/details'.format(BASE_URL))
+print("result", result.text)
 result_json = result.json()
 
 assert result_json.get('name') == 'user one'
@@ -151,6 +155,7 @@ text_file.close()
 print("----")
 print("call user api with parameter")
 result = requests.post('{}/users'.format(BASE_URL), json={"user": "1232132"})
+print("result", result.text)
 result_json = result.json()
 
 assert result_json.get('msg') == 'ok message'
@@ -159,6 +164,7 @@ assert result_json.get('msg') == 'ok message'
 print("----")
 print("call user api without parameter, should create new mock file and result in CHANGEME...")
 result = requests.post('{}/users'.format(BASE_URL))
+print("result", result.text)
 assert 'CHANGEME' in result.text
 
 
