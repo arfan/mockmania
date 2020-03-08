@@ -1,4 +1,5 @@
 ![Python application](https://github.com/arfan/mockmania/workflows/Python%20application/badge.svg)
+<img src="https://badgen.net/codecov/c/github/arfan/mockmania">
 # mockmania
 
 Simple python mocking of http api, able to catch http request and directly modify the output.
