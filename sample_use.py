@@ -172,7 +172,7 @@ path: hello_from_write
 response: '{"message":"hello from write"}'
 """)
 result_json = result.json()
-print("result", result)
+print("result", result.text)
 assert result_json.get('msg') == 'ok'
 
 
