@@ -1,3 +1,4 @@
+import logging
 import unittest
 from http import HTTPStatus
 
@@ -17,10 +18,11 @@ class HandlerTests(unittest.TestCase):
         # app.config['TESTING'] = True
         # app.config['WTF_CSRF_ENABLED'] = False
         self.app = app.test_client()
+        logging.disable(logging.CRITICAL)
 
     # executed after each test
     def tearDown(self):
-        pass
+        logging.disable(logging.NOTSET)
 
     ###############
     #### tests ####
@@ -114,7 +116,7 @@ class HandlerTests(unittest.TestCase):
         mock_os_path_isfile.return_value = False
         response = self.app.put('/mock_write', follow_redirects=True, data="test_mock_output: test")
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.data, b'{"msg":"location not valid"}')
+        self.assertEqual(response.data, b'{"msg":"location not valid, must end with yaml, must not start with /"}')
 
     @patch('os.path.isfile')
     @patch('main.write_raw_mock_yaml_file')

@@ -12,6 +12,23 @@ from flask import request
 
 import re
 
+from logging.config import dictConfig
+
+dictConfig({
+    'version': 1,
+    'formatters': {'default': {
+        'format': '[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
+    }},
+    'handlers': {'wsgi': {
+        'class': 'logging.StreamHandler',
+        'stream': 'ext://flask.logging.wsgi_errors_stream',
+        'formatter': 'default'
+    }},
+    'root': {
+        'level': 'INFO',
+        'handlers': ['wsgi']
+    }
+})
 app = Flask(__name__)
 HTTP_METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH']
 
@@ -108,7 +125,9 @@ def handler(path):
     # check default output
     if os.path.isfile(MOCK_OUTPUT_FILE_NAME):
         content = open(MOCK_OUTPUT_FILE_NAME, 'r').read()
+        app.logger.info('default output found, response is %s', content)
         os.remove(MOCK_OUTPUT_FILE_NAME)
+        app.logger.info('default output deleted')
         return content
 
     req = {
@@ -121,32 +140,38 @@ def handler(path):
     else:
         req['path'] = path
 
+    body_content = ''
     if request.method != 'GET':
         body_content = request.data.decode()
         if body_content != 'null':
             req['body'] = body_content
 
+    app.logger.info('request %s', req)
+
     # special command/request
     if req['method'] == 'PUT' and req['path'] == ENDPOINT_SET_MOCKS_FOLDER:
-        set_mocks_folder(request.data.decode())
+        app.logger.info('set mocks folder to %s', body_content)
+        set_mocks_folder(body_content)
         return Response(response='{"msg":"ok"}',
                         status=200,
                         mimetype="application/json")
 
     if req['method'] == 'PUT' and req['path'] == ENDPOINT_SET_MOCK_OUTPUT:
-        set_mock_output(request.data.decode())
-
+        app.logger.info('set mock output to %s', body_content)
+        set_mock_output(body_content)
         return Response(response='{"msg":"ok"}',
                         status=200,
                         mimetype="application/json")
 
     if req['method'] == 'PUT' and req['path'] == ENDPOINT_WRITE_MOCK_FILE:
-        file_content = request.data.decode()
+        file_content = body_content
         yaml_parse = yaml.safe_load(file_content)
         location = yaml_parse.get('location')
+        app.logger.info('try to write mock file %s', file_content)
 
         if not location or not location.endswith('.yaml') or location.startswith("/"):
-            return Response(response='{"msg":"location not valid"}',
+            app.logger.info('location not valid, must end with yaml must not start with /')
+            return Response(response='{"msg":"location not valid, must end with yaml, must not start with /"}',
                             status=HTTPStatus.BAD_REQUEST,
                             mimetype="application/json")
         write_raw_mock_yaml_file(location, file_content)
@@ -155,12 +180,16 @@ def handler(path):
                         mimetype="application/json")
 
     mock_list_folder = get_mocks_folder()
+    app.logger.info('mock list folder is %s', mock_list_folder)
+
     mock_list = read_mock_list(mock_list_folder)
+    app.logger.info('mock list is %s', mock_list)
 
     for ml in mock_list:
         resp = get_response(ml, req, request)
         if resp:
             if resp == 'abort(504)':
+                app.logger.info('return fake abort 504')
                 abort(504)
             return Response(response=resp,
                             status=200,
@@ -169,10 +198,14 @@ def handler(path):
     filename = get_mock_filename(path, mock_list_folder, request.method)
     response_text = "CHANGEME in file {}".format(filename)
 
+    app.logger.info('filename is %s, response_text is %s', filename, response_text)
+
     # create new mock list
     try:
+        app.logger.info('writing mock yaml file filename: %s, req: %s, response_text: %s', filename, req, response_text)
         write_mock_yaml_file(filename, req, response_text)
     except Exception as e:
+        app.logger.info('{"msg":"fail to write file, please check mocks folder"}')
         return Response(response='{"msg":"fail to write file, please check mocks folder"}',
                             status=HTTPStatus.INTERNAL_SERVER_ERROR,
                             mimetype="application/json")

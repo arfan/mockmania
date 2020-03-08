@@ -39,7 +39,8 @@ class TestMainBoilerplate(unittest.TestCase):
 
 
     @patch('main.app')
-    def test_main_boilerplate_with_argument_error(self, mock_app: MagicMock):
+    @patch('builtins.print')
+    def test_main_boilerplate_with_argument_error(self, mock_print:MagicMock, mock_app: MagicMock):
         old_sys_argv = sys.argv
         sys.argv = ['main.py', "asdfasdkfajlsdfjlds"]
 
