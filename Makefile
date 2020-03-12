@@ -1,3 +1,5 @@
+help:
+	echo "list command: cleanup, preparedocker, coverage, dockertest, unittest, integrationtest, run"
 cleanup:
 	rm -f docker_test/main/main.py
 	rm -rf docker_test/main/mocks/
@@ -33,3 +35,6 @@ integrationtest:
 	rm -f nohup.out
 	echo mocks > mocks_folder
 	echo lastLine
+
+run:
+	python main.py
