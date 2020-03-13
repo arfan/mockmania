@@ -176,6 +176,7 @@ result = requests.put('{}/mock_write'.format(BASE_URL), data="""location: """+lo
 method: GET
 path: hello_from_write
 response: '{"message":"hello from write"}'
+delete: true
 """)
 result_json = result.json()
 print("result", result.text)
@@ -186,3 +187,8 @@ print("----")
 print("call new written mock api")
 result = requests.get('{}/hello_from_write'.format(BASE_URL))
 assert result.json().get('message')=='hello from write'
+
+
+print("call new written mock api")
+result = requests.get('{}/hello_from_write'.format(BASE_URL))
+assert result.text.startswith("CHANGEME")

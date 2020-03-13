@@ -71,8 +71,11 @@ def get_response(filepath: str, current_request, origin_request):
             if re.fullmatch(m.get('body'), current_request.get('body')) is None:
                 return None
 
-        response = m.get('response')
+        delete = m.get('delete')
+        if delete == True:
+            os.remove(filepath)
 
+        response = m.get('response')
         if response is None:
             reference = m.get('reference')
 
