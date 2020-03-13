@@ -1,9 +1,8 @@
+import json
 import os
-import re
 import sys
 import time
 from http import HTTPStatus
-from logging.config import dictConfig
 from os import path
 from typing import List
 
@@ -11,6 +10,10 @@ import requests
 import yaml
 from flask import Flask, Response, abort
 from flask import request
+
+import re
+
+from logging.config import dictConfig
 
 dictConfig({
     'version': 1,
@@ -119,7 +122,7 @@ def read_mock_list(mock_list_folder) -> List[str]:
 
 @app.route('/', defaults={'path': ''}, methods=HTTP_METHODS)
 @app.route('/<path:path>', methods=HTTP_METHODS)
-def handler(pathstr):
+def handler(path):
     # check default output
     if os.path.isfile(MOCK_OUTPUT_FILE_NAME):
         content = open(MOCK_OUTPUT_FILE_NAME, 'r').read()
@@ -134,9 +137,9 @@ def handler(pathstr):
 
     qs = request.query_string.decode()
     if qs:
-        req['path'] = "{}?{}".format(pathstr, qs)
+        req['path'] = "{}?{}".format(path, qs)
     else:
-        req['path'] = pathstr
+        req['path'] = path
 
     body_content = ''
     if request.method != 'GET':
@@ -193,7 +196,7 @@ def handler(pathstr):
                             status=200,
                             mimetype="application/json")
 
-    filename = get_mock_filename(pathstr, mock_list_folder, request.method)
+    filename = get_mock_filename(path, mock_list_folder, request.method)
     response_text = "CHANGEME in file {}".format(filename)
 
     app.logger.info('filename is %s, response_text is %s', filename, response_text)
@@ -202,17 +205,17 @@ def handler(pathstr):
     try:
         app.logger.info('writing mock yaml file filename: %s, req: %s, response_text: %s', filename, req, response_text)
         write_mock_yaml_file(filename, req, response_text)
-    except Exception:
+    except Exception as e:
         app.logger.info('{"msg":"fail to write file, please check mocks folder"}')
         return Response(response='{"msg":"fail to write file, please check mocks folder"}',
-                        status=HTTPStatus.INTERNAL_SERVER_ERROR,
-                        mimetype="application/json")
+                            status=HTTPStatus.INTERNAL_SERVER_ERROR,
+                            mimetype="application/json")
     return response_text
 
 
-def get_mock_filename(pathstr: str, mock_list_folder: str, method: str) -> str:
+def get_mock_filename(path: str, mock_list_folder: str, method: str) -> str:
     milliseconds = int(round(time.time() * 1000))
-    filename = "{}/{}_{}_{}.yaml".format(mock_list_folder, method, pathstr.replace('/', '_'),
+    filename = "{}/{}_{}_{}.yaml".format(mock_list_folder, method, path.replace('/', '_'),
                                          str(milliseconds))
     return filename
 
