@@ -54,6 +54,12 @@ class TestMainGetResponse(unittest.TestCase):
             get_response("testfile.txt", {'body': 'diff_sample_body'}, {})
             mock_file.assert_called_with('testfile.txt')
 
+    @patch('os.remove')
+    def test_get_response_with_delete(self, mock_os_remove: MagicMock):
+        with patch("builtins.open", mock_open(read_data='delete: true')) as mock_file:
+            get_response("testfile.txt", {}, {})
+            mock_os_remove.assert_called_once_with('testfile.txt')
+
     @patch('requests.request')
     @patch('main.write_mock_yaml_file')
     def test_get_response_reference(self, mock_write: MagicMock, mock_requests: MagicMock):
