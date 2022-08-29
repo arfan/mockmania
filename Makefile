@@ -31,7 +31,6 @@ integrationtest:
 	nohup python main.py 30000 &
 	sleep 3
 	python sample_use.py
-	./killport 30000
 	rm -f nohup.out
 	echo mocks > mocks_folder
 	echo lastLine
