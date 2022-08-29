@@ -30,7 +30,7 @@ unittest:
 integrationtest:
 	nohup python main.py 30000 &
 	sleep 3
-	python sample_use.py
+	export PORT=30000 python sample_use.py
 	rm -f nohup.out
 	echo mocks > mocks_folder
 	echo lastLine
