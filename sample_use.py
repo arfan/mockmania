@@ -13,7 +13,7 @@ SERVICE_PORT = os.getenv('PORT')
 if not SERVICE_HOST:
     SERVICE_HOST = "localhost"
 if not SERVICE_PORT:
-    SERVICE_PORT = 7000
+    SERVICE_PORT = 30000
 
 BASE_URL = "http://{}:{}".format(SERVICE_HOST, SERVICE_PORT)
 

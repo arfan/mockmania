@@ -28,10 +28,10 @@ unittest:
 	python -m unittest discover -s unit_test
 
 integrationtest:
-	nohup python main.py &
+	nohup python main.py 30000 &
 	sleep 3
 	python sample_use.py
-	./killport 7000
+	./killport 30000
 	rm -f nohup.out
 	echo mocks > mocks_folder
 	echo lastLine
