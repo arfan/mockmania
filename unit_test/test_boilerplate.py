@@ -22,7 +22,7 @@ class TestMainBoilerplate(unittest.TestCase):
 
         try:
             main.main()
-            mock_app.run.assert_called_with(host='0.0.0.0', port=7000)
+            mock_app.run.assert_called_with(host='0.0.0.0', port=30000)
         finally:
             sys.argv = old_sys_argv
 
